@@ -113,6 +113,12 @@ in {
       ];
     };
 
+    # Make sure the WSLg X11 socket is available if /tmp is mounted to something else
+    fileSystems."/tmp/.X11-unix/X0" = {
+      device = "${cfg.wslConf.automount.root}/wslg/.X11-unix/X0";
+      options = [ "bind" ];
+    };
+
     # dhcp is handled by windows
     networking.dhcpcd.enable = false;
 
