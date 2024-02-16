@@ -1,4 +1,4 @@
-{ rustPlatform }:
+{rustPlatform}:
 rustPlatform.buildRustPackage {
   pname = "nixos-wsl-utils";
   version = "1.0.0";

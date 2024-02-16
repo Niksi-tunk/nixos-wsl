@@ -6,7 +6,7 @@
   wsl.enable = true;
   wsl.nativeSystemd = false;
 
-  users.users.nixos.extraGroups = [ "docker" ];
+  users.users.nixos.extraGroups = ["docker"];
 
   virtualisation.docker = {
     enable = true;

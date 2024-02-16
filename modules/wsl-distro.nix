@@ -1,12 +1,13 @@
-{ lib, pkgs, config, ... }:
-
-with builtins; with lib;
-
-let
-  cfg = config.wsl;
-in
 {
-
+  lib,
+  pkgs,
+  config,
+  ...
+}:
+with builtins;
+with lib; let
+  cfg = config.wsl;
+in {
   options.wsl = with types; {
     enable = mkEnableOption "support for running NixOS as a WSL distribution";
     useWindowsDriver = mkEnableOption "OpenGL driver from the Windows host";
@@ -33,7 +34,7 @@ in
       '';
     };
     extraBin = mkOption {
-      type = listOf (submodule ({ config, ... }: {
+      type = listOf (submodule ({config, ...}: {
         options = {
           src = mkOption {
             type = str;
@@ -75,7 +76,7 @@ in
       enable = true; # Enable GPU acceleration
 
       extraPackages = mkIf cfg.useWindowsDriver [
-        (pkgs.runCommand "wsl-lib" { } ''
+        (pkgs.runCommand "wsl-lib" {} ''
           mkdir -p "$out/lib"
           # # we cannot just symlink the lib directory because it breaks merging with other drivers that provide the same directory
           ln -s /usr/lib/wsl/lib/libcudadebugger.so.1 "$out/lib"
@@ -118,11 +119,11 @@ in
     users.users.${cfg.defaultUser} = {
       isNormalUser = true;
       uid = 1000;
-      extraGroups = [ "wheel" ]; # Allow the default user to use sudo
+      extraGroups = ["wheel"]; # Allow the default user to use sudo
     };
 
     # Otherwise WSL fails to login as root with "initgroups failed 5"
-    users.users.root.extraGroups = [ "root" ];
+    users.users.root.extraGroups = ["root"];
 
     powerManagement.enable = false;
 
@@ -130,7 +131,7 @@ in
 
     system.activationScripts = {
       copy-launchers = mkIf cfg.startMenuLaunchers (
-        stringAfter [ ] ''
+        stringAfter [] ''
           for x in applications icons; do
             echo "setting up /usr/share/''${x}..."
             targets=()
@@ -150,13 +151,15 @@ in
           done
         ''
       );
-      populateBin = lib.mkIf cfg.populateBin (stringAfter [ ] ''
+      populateBin = lib.mkIf cfg.populateBin (stringAfter [] ''
         echo "setting up /bin..."
-        ${concatStringsSep "\n" (map
-          (entry:
-            if entry.copy
-            then "cp -f ${entry.src} /bin/${entry.name}"
-            else "ln -sf ${entry.src} /bin/${entry.name}"
+        ${concatStringsSep "\n" (
+          map
+          (
+            entry:
+              if entry.copy
+              then "cp -f ${entry.src} /bin/${entry.name}"
+              else "ln -sf ${entry.src} /bin/${entry.name}"
           )
           config.wsl.extraBin
         )}
@@ -167,20 +170,29 @@ in
     wsl = {
       populateBin = true;
       extraBin = [
-        { src = "/init"; name = "wslpath"; }
-        { src = "${cfg.binShPkg}/bin/sh"; name = "sh"; }
-        { src = "${pkgs.util-linux}/bin/mount"; }
+        {
+          src = "/init";
+          name = "wslpath";
+        }
+        {
+          src = "${cfg.binShPkg}/bin/sh";
+          name = "sh";
+        }
+        {src = "${pkgs.util-linux}/bin/mount";}
       ];
     };
 
     warnings = flatten [
-      (optional (config.services.resolved.enable && config.wsl.wslConf.network.generateResolvConf)
+      (
+        optional (config.services.resolved.enable && config.wsl.wslConf.network.generateResolvConf)
         "systemd-resolved is enabled, but resolv.conf is managed by WSL (wsl.wslConf.network.generateResolvConf)"
       )
-      (optional ((length config.networking.nameservers) > 0 && config.wsl.wslConf.network.generateResolvConf)
+      (
+        optional ((length config.networking.nameservers) > 0 && config.wsl.wslConf.network.generateResolvConf)
         "custom nameservers are set (networking.nameservers), but resolv.conf is managed by WSL (wsl.wslConf.network.generateResolvConf)"
       )
-      (optional ((length config.networking.nameservers) == 0 && !config.services.resolved.enable && !config.wsl.wslConf.network.generateResolvConf)
+      (
+        optional ((length config.networking.nameservers) == 0 && !config.services.resolved.enable && !config.wsl.wslConf.network.generateResolvConf)
         "resolv.conf generation is turned off (wsl.wslConf.network.generateResolvConf), but no other nameservers are configured (networking.nameservers)"
       )
     ];

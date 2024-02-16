@@ -1,6 +1,9 @@
-{ config, lib, ... }:
+{
+  config,
+  lib,
+  ...
+}:
 with lib; {
-
   imports = [
     ./native
     ./syschdemd
@@ -14,12 +17,10 @@ with lib; {
     };
   };
 
-  config =
-    let
-      cfg = config.wsl;
-    in
+  config = let
+    cfg = config.wsl;
+  in
     mkIf (cfg.enable) {
-
       # systemd-oomd requires cgroup pressure info which WSL doesn't have
       systemd.oomd.enable = false;
 
