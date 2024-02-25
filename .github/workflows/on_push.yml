@@ -29,6 +29,6 @@ jobs:
     needs:
       - build
 
-  docs:
-    name: Docs 📕
-    uses: ./.github/workflows/run_docs.yml
+  # docs:
+  #   name: Docs 📕
+  #   uses: ./.github/workflows/run_docs.yml
