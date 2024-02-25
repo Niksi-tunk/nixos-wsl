@@ -58,4 +58,12 @@ in {
 
     wantedBy = ["multi-user.target"];
   };
+
+  programs = {
+    direnv = {
+      enable = true;
+      nix-direnv.enable = true;
+    };
+    git.enable = true;
+  };
 }
