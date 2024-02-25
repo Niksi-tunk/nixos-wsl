@@ -7,7 +7,7 @@
   baseModule = {...}: {
     imports = [../modules];
     wsl.enable = true;
-    wsl.defaultUser = "nixos";
+    wsl.defaultUser = "niksi";
   };
   changedUsername = {lib, ...}: {
     wsl.defaultUser = lib.mkForce "different";
@@ -18,7 +18,7 @@
     ...
   }: {
     wsl.defaultUser = lib.mkForce "userattr";
-    users.users.${config.wsl.defaultUser}.name = "username";
+    users.users.${config.wsl.defaultUser}.name = "niksi";
   };
   buildConfig = module:
     (inputs.nixpkgs.lib.nixosSystem {

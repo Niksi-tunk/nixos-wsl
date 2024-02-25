@@ -11,7 +11,6 @@
     ./wsl-conf.nix
     ./wsl-distro.nix
 
-    ./ssh.nix
     ./vscode.nix
 
     (lib.mkRemovedOptionModule ["wsl" "docker-native"]
