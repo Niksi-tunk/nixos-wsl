@@ -9,15 +9,12 @@
       url = "github:edolstra/flake-compat";
       flake = false;
     };
-
-    vscode-server.url = "github:nix-community/nixos-vscode-server";
   };
 
   outputs = inputs @ {
     self,
     nixpkgs,
     flake-utils,
-    vscode-server,
     ...
   }:
     with nixpkgs.lib;
@@ -47,7 +44,6 @@
             modules = [
               self.nixosModules.default
               initialConfig
-              vscode-server.nixosModules.default
             ];
           };
 
