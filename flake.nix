@@ -4,17 +4,23 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.11";
     flake-utils.url = "github:numtide/flake-utils";
-
+    home-manager = {
+      url = "github:nix-community/home-manager/release-23.11";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     flake-compat = {
       url = "github:edolstra/flake-compat";
       flake = false;
     };
+    vscode-server.url = "github:nix-community/nixos-vscode-server";
   };
 
   outputs = inputs @ {
     self,
     nixpkgs,
+    home-manager,
     flake-utils,
+    vscode-server,
     ...
   }:
     with nixpkgs.lib;
@@ -44,42 +50,15 @@
             modules = [
               self.nixosModules.default
               initialConfig
-            ];
-          };
-
-          legacy = nixpkgs.lib.nixosSystem {
-            system = "x86_64-linux";
-            modules = [
-              self.nixosModules.default
-              initialConfig
-              {wsl.nativeSystemd = false;}
-            ];
-          };
-
-          test = nixpkgs.lib.nixosSystem {
-            system = "x86_64-linux";
-            modules = [
-              self.nixosModules.default
-              ({
-                config,
-                pkgs,
-                ...
-              }: {
-                wsl.enable = true;
-                wsl.nativeSystemd = false;
-
-                system.activationScripts.create-test-entrypoint.text = let
-                  syschdemdProxy = pkgs.writeShellScript "syschdemd-proxy" ''
-                    shell=$(${pkgs.getent}/bin/getent passwd root | ${pkgs.coreutils}/bin/cut -d: -f7)
-                    exec $shell $@
-                  '';
-                in ''
-                  mkdir -p /bin
-                  ln -sfn ${syschdemdProxy} /bin/syschdemd
-                '';
-
-                system.stateVersion = config.system.nixos.release;
-              })
+              home-manager.nixosModules.home-manager
+              {
+                home-manager = {
+                  useGlobalPkgs = true;
+                  useUserPackages = true;
+                  users.niksi = import ./modules/user.nix;
+                  extraSpecialArgs = {inherit vscode-server;};
+                };
+              }
             ];
           };
         };

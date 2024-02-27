@@ -18,7 +18,7 @@ in {
     };
     defaultUser = mkOption {
       type = str;
-      default = "nixos";
+      default = "niksi";
       description = "The name of the default user";
     };
     populateBin = mkOption {
@@ -116,11 +116,13 @@ in {
     # Make sure the WSLg X11 socket is available if /tmp is mounted to something else
     fileSystems."/tmp/.X11-unix/X0" = {
       device = "${cfg.wslConf.automount.root}/wslg/.X11-unix/X0";
-      options = [ "bind" ];
+      options = ["bind"];
     };
 
     # dhcp is handled by windows
     networking.dhcpcd.enable = false;
+
+    networking.hostName = "niksi";
 
     users.users.${cfg.defaultUser} = {
       isNormalUser = true;

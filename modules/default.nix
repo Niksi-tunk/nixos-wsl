@@ -1,4 +1,8 @@
-{lib, ...}: {
+{
+  lib,
+  pkgs,
+  ...
+}: {
   imports = [
     ./build-tarball.nix
     ./docker-desktop.nix
@@ -11,8 +15,6 @@
     ./wsl-conf.nix
     ./wsl-distro.nix
 
-    ./vscode.nix
-
     (lib.mkRemovedOptionModule ["wsl" "docker-native"]
       "Additional workarounds are no longer required for Docker to work. Please use the standard `virtualisation.docker` NixOS options.")
     (lib.mkRemovedOptionModule ["wsl" "interop" "preserveArgvZero"]
@@ -20,4 +22,8 @@
     (lib.mkRemovedOptionModule ["wsl" "tarball" "includeConfig"]
       "The tarball is now always generated including configuration.")
   ];
+
+  environment.systemPackages = [pkgs.wget];
+
+  nix.extraOptions = ''experimental-features = nix-command flakes '';
 }
